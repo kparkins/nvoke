@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  traefik:
+    image: traefik:v2.5
+    command:
+      - "--api.insecure=true"  # Enables the dashboard on an insecure endpoint
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - web
+
+  frontend:
+    image: nvoke-ui 
+    labels:
+      - "traefik.http.routers.frontend.rule=Host(`frontend.local`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    networks:
+      - web
+
+  api:
+    image: nvoke-api
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    command: ["serve"]
+    labels:
+      - "traefik.http.routers.api.rule=Host(`api.local`)"
+      - "traefik.http.middlewares.api-cors.headers.accessControlAllowMethods=GET, POST, OPTIONS"
+      - "traefik.http.middlewares.api-cors.headers.accessControlAllowOriginList=http://frontend.local"
+      - "traefik.http.middlewares.api-cors.headers.accessControlAllowCredentials=true"
+      - "traefik.http.middlewares.api-cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.api-cors.headers.accessControlAllowHeaders=Content-Type, X-Requested-With"
+      - "traefik.http.routers.api.middlewares=api-cors"
+      - "traefik.http.routers.api.entrypoints=web"
+    networks:
+      - web
+
+networks:
+  web:
+    external: false
+
