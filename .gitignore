@@ -1,0 +1,6 @@
+nvoke
+.env
+texts/*.json
+verses.json
+biblical
+.DS_Store
