@@ -94,7 +94,7 @@ func TestEmbeddingService_GenerateEmbeddings(t *testing.T) {
 		period:       time.Minute,
 	}
 
-	service := NewEmbeddingService[int](mockGen, mockAdapter, mockLimiter)
+	service := NewService[int](mockGen, mockAdapter, mockLimiter)
 
 	mockGen.On("GenerateEmbedding", mock.Anything, mock.Anything).Return([]float32{0.1, 0.2, 0.3}, nil)
 	mockAdapter.On("GetContent", mock.Anything).Return("sample content")

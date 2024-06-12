@@ -20,13 +20,13 @@ type EmbeddingStore[T any] interface {
 }
 
 // Combine both interfaces if an object needs to provide both functionalities
-type EmbeddingAdapter[T any] interface {
+type Adapter[T any] interface {
 	ContentStore[T]
 	EmbeddingStore[T]
 }
 
-// EmbeddingGenerator defines the interface for generating embeddings.
-type EmbeddingGenerator interface {
+// Generator defines the interface for generating embeddings.
+type Generator interface {
 	GenerateEmbedding(context context.Context, content string) ([]float32, error)
 }
 
@@ -38,16 +38,16 @@ type RateLimiter interface {
 	Period() time.Duration
 }
 
-// EmbeddingService structures the embedding generation process using dependency injection.
-type EmbeddingService[T any] struct {
-	Generator EmbeddingGenerator
-	Adapter   EmbeddingAdapter[T]
+// Service structures the embedding generation process using dependency injection.
+type Service[T any] struct {
+	Generator Generator
+	Adapter   Adapter[T]
 	Limiter   RateLimiter
 }
 
-// NewEmbeddingService creates a new instance of EmbeddingService.
-func NewEmbeddingService[T any](generator EmbeddingGenerator, adapter EmbeddingAdapter[T], limiter RateLimiter) *EmbeddingService[T] {
-	return &EmbeddingService[T]{
+// NewService creates a new instance of EmbeddingService.
+func NewService[T any](generator Generator, adapter Adapter[T], limiter RateLimiter) *Service[T] {
+	return &Service[T]{
 		Generator: generator,
 		Adapter:   adapter,
 		Limiter:   limiter,
@@ -55,7 +55,7 @@ func NewEmbeddingService[T any](generator EmbeddingGenerator, adapter EmbeddingA
 }
 
 // Generate processes all verses and handles worker adjustments.
-func (es *EmbeddingService[T]) GenerateEmbeddings(ctx context.Context, items []T) error {
+func (es *Service[T]) GenerateEmbeddings(ctx context.Context, items []T) error {
 	var total int64
 	wg := &sync.WaitGroup{}
 	for i := 0; i < len(items); i += es.Limiter.RequestLimit() {
@@ -104,18 +104,18 @@ func (es *EmbeddingService[T]) GenerateEmbeddings(ctx context.Context, items []T
 	return nil
 }
 
-type EmbeddingClient interface {
+type Client interface {
 	CreateEmbeddings(ctx context.Context, req openai.EmbeddingRequestConverter) (openai.EmbeddingResponse, error)
 }
 
 // OpenAIGenerator is an implementation of the EmbeddingGenerator interface.
 type OpenAIGenerator struct {
-	Client     EmbeddingClient
+	Client     Client
 	Model      openai.EmbeddingModel
 	Dimensions int
 }
 
-func NewOpenAIGenerator(client EmbeddingClient, model openai.EmbeddingModel, dimensions int) *OpenAIGenerator {
+func NewOpenAIGenerator(client Client, model openai.EmbeddingModel, dimensions int) *OpenAIGenerator {
 	return &OpenAIGenerator{
 		Client:     client,
 		Model:      model,

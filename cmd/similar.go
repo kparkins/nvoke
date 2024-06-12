@@ -27,7 +27,6 @@ func SearchSimilarVerses(query string) {
 	if err != nil {
 		log.Fatalf("Failed to generate embedding for the query: %v", err)
 	}
-	//fmt.Printf("%v\n\n", queryEmbedding)
 
 	// Connect to MongoDB
 	clientOptions := options.Client().ApplyURI(MongoDBConnectionString)
@@ -77,13 +76,13 @@ var similarCmd = &cobra.Command{
 	Use:   "similar",
 	Short: "similarity search for bible verses",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Assuming you have a function `UploadVersesToMongoDB` implemented
 		SearchSimilarVerses(query)
 	},
 }
 
 func init() {
-	similarCmd.Flags().StringVarP(&query, "query", "q", "", "Text query to search similar Bible verses")
+	similarCmd.Flags().StringVarP(&query, "query", "q", "", "Text query to search similar embeddings")
+	similarCmd.Flags().StringVarP(&persona, "persona", "p", "", "The persona to use when searching")
 	similarCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Max similar vectors limit.")
 	similarCmd.Flags().IntVarP(&candidates, "candidates", "c", 200, "Number of candidates to consider.")
 	rootCmd.AddCommand(similarCmd)

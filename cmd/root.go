@@ -15,6 +15,7 @@ var MongoDBConnectionString string
 var limit int
 var candidates int
 var query string
+var persona string
 
 var rootCmd = &cobra.Command{
 	Use:   "nvoke",
