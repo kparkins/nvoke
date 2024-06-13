@@ -39,7 +39,7 @@ func ParseChapters(f *os.File) []*Chapter {
 		}
 
 	}
-	return chapters
+	return chapters[1:]
 }
 
 func LoadChaptersFromFile() []*Chapter {

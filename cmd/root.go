@@ -30,8 +30,8 @@ func Execute() {
 	}
 
 	// Get the environment variables
-	OpenAIAPIKey = os.Getenv("DB_USER")
-	MongoDBConnectionString = os.Getenv("DB_PASSWORD")
+	OpenAIAPIKey = os.Getenv("OPENAI_API_KEY")
+	MongoDBConnectionString = os.Getenv("MONGODB_CONNECTION_STRING_SRV")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

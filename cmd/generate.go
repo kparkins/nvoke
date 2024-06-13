@@ -41,7 +41,7 @@ func GenerateAndSaveEmbeddings[T any](adapter embedding.Adapter[T], content []T,
 	if err != nil {
 		fmt.Printf("Failed to write to chapters.json: %v\n", err)
 	}
-	fmt.Println("Embeddings generated and saved to chapters.json")
+	fmt.Println("Embeddings generated and saved to json file")
 }
 
 var generateCmd = &cobra.Command{
@@ -74,6 +74,6 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
-	similarCmd.Flags().StringVarP(&persona, "persona", "p", "", "The persona to use when searching")
+	generateCmd.Flags().StringVarP(&persona, "persona", "p", "", "The persona to use when searching")
 	rootCmd.AddCommand(generateCmd)
 }

@@ -24,7 +24,7 @@ var ragCmd = &cobra.Command{
 var completionContext string
 
 func init() {
-	ragCmd.Flags().StringVarP(&query, "query", "q", "", "Text query to search similar Bible verses")
+	ragCmd.Flags().StringVarP(&query, "query", "q", "", "Text query to search for similar embeddings")
 	ragCmd.Flags().StringVarP(&completionContext, "context", "x", "", "Text context for the completion")
 	ragCmd.Flags().StringVarP(&persona, "persona", "p", "", "The persona to use when searching")
 	ragCmd.Flags().IntVarP(&limit, "limit", "l", 10, "Max similar vectors limit.")
@@ -35,10 +35,6 @@ func init() {
 func RetrievalAugmentedSearch(query string) {
 	ctx := context.Background()
 
-	if query == "" {
-		log.Fatalf("Invalid query string \"%s\"\n", query)
-	}
-
 	openaiClient := openai.NewClient(OpenAIAPIKey)
 	generator := embedding.NewOpenAIGenerator(openaiClient, openai.SmallEmbedding3, 1536)
 
@@ -46,6 +42,7 @@ func RetrievalAugmentedSearch(query string) {
 		Query:   query,
 		Persona: persona,
 	}
+
 	if completionContext != "" {
 		data.Query = completionContext
 	}

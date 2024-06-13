@@ -84,6 +84,8 @@ func serve() {
 			nvoke.ErrChatCompletionContextBuildFailed,
 			nvoke.ErrChatCompletionFailed:
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		w.Header().Set("Content-Type", "application/json")

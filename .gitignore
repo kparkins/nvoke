@@ -1,6 +1,7 @@
 nvoke
 .env
-texts/*.json
+texts/**.json
+nkjv-verses.json
 verses.json
 biblical
 .DS_Store
