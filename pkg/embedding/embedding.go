@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -85,11 +86,24 @@ func (es *Service[T]) GenerateEmbeddings(ctx context.Context, items []T) error {
 				defer wg.Done()
 				for _, item := range items[start:end] {
 					content := es.Adapter.GetContent(item)
-					embedding, err := es.Generator.GenerateEmbedding(ctx, content)
+					var embedding []float32
+					operation := func() error {
+						var err error
+						embedding, err = es.Generator.GenerateEmbedding(ctx, content)
+						if err != nil {
+							log.Printf("Retrying embedding generation: %v '%v'", err, content)
+							return err
+						}
+						return nil
+					}
+
+					expBackoff := backoff.NewExponentialBackOff(backoff.WithMaxElapsedTime(1 * time.Minute))
+					err := backoff.Retry(operation, expBackoff)
 					if err != nil {
 						log.Printf("Error generating embeddings: %v '%v'", err, item)
 						continue
 					}
+
 					es.Adapter.StoreEmbedding(item, embedding)
 					atomic.AddInt64(&count, 1)
 				}
