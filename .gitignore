@@ -1,6 +1,6 @@
 nvoke
 .env
-texts/**.json
+chapters.json
 nkjv-verses.json
 verses.json
 biblical
