@@ -56,7 +56,7 @@ func serve() {
 		return
 	}
 	defer mongodb.Disconnect(ctx)
-	service := nvoke.NewCompletionService(mongodb, generator, openaiClient)
+	service := nvoke.NewRetrievalService(mongodb, generator, openaiClient)
 
 	// c := cors.New(cors.Options{
 	// 	AllowedOrigins: []string{"http://frontend.local"},

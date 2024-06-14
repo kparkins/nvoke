@@ -30,7 +30,7 @@ func SearchSimilarVerses(query string) {
 	}
 	defer mongoClient.Disconnect(ctx)
 
-	service := nvoke.NewCompletionService(mongoClient, generator, client)
+	service := nvoke.NewRetrievalService(mongoClient, generator, client)
 	items, err := service.SemanticSearch(ctx, nvoke.Query{Query: query, Persona: persona})
 	if err != nil {
 		log.Fatalf("Failed to find similar content %v", err)

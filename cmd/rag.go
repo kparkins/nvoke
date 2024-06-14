@@ -54,7 +54,7 @@ func RetrievalAugmentedSearch(query string) {
 	}
 	defer mongodb.Disconnect(ctx)
 
-	service := nvoke.NewCompletionService(mongodb, generator, openaiClient)
+	service := nvoke.NewRetrievalService(mongodb, generator, openaiClient)
 
 	completion, err := service.CreateChatCompletion(ctx, data)
 	if err != nil {
