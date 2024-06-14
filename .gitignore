@@ -1,5 +1,6 @@
-nvoke
 !nvoke/
+bin/*
+!bin/.gitkeep
 .env
 chapters.json
 nkjv-verses.json

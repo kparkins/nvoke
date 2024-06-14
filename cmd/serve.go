@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"nvoke/nvoke"
 	"nvoke/pkg/embedding"
-	"nvoke/pkg/nvoke"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

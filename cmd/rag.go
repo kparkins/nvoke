@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"nvoke/nvoke"
 	"nvoke/pkg/embedding"
-	"nvoke/pkg/nvoke"
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
