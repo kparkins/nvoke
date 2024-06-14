@@ -24,6 +24,9 @@ RUN apk --no-cache add ca-certificates
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main /app/main
 
+ENV OPENAI_API_KEY=""
+ENV MONGODB_CONNECTION_STRING_SRV=""
+
 # Expose port 3000 to the outside world
 EXPOSE 80
 

@@ -24,14 +24,16 @@ var rootCmd = &cobra.Command{
 
 // Execute executes the root command.
 func Execute() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load()
 
 	// Get the environment variables
 	OpenAIAPIKey = os.Getenv("OPENAI_API_KEY")
 	MongoDBConnectionString = os.Getenv("MONGODB_CONNECTION_STRING_SRV")
+
+	if OpenAIAPIKey == "" || MongoDBConnectionString == "" {
+		log.Fatalf("Error loading environment variables")
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
