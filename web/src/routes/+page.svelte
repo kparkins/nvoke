@@ -4,6 +4,7 @@
 	let query = "";
 	let result = "";  
 	onMount(() => {
+		connect();
 	});
 
 	async function handleSearch() {
@@ -24,7 +25,39 @@
 	}
 
 	  // background-image: url('heavenly-background.jpg');
-  </script>
+  let messages = [];
+  let inputMessage = '';
+
+  let socket;
+
+  function connect() {
+    socket = new WebSocket('ws://api.local/v1/completion/stream');
+
+    socket.onmessage = function (event) {
+      messages = [...messages, event.data];
+    };
+
+    socket.onclose = function (event) {
+      console.log('WebSocket closed:', event);
+    };
+
+    socket.onerror = function (error) {
+      console.log('WebSocket error:', error);
+    };
+  }
+
+  function sendMessage() {
+    if (socket && inputMessage.trim() !== '') {
+      const message = { 
+		query: inputMessage,
+		persona: "bible"
+	};
+
+      socket.send(JSON.stringify(message));
+      inputMessage = '';
+    }
+  }
+</script>
   
   <style>
 	* {
@@ -138,8 +171,16 @@
   
   <div class="search-container">
 	<input type="text" bind:value={query} placeholder="Ask me anything for I am your God...">
-	<button on:click={handleSearch}>Search</button>
+	<button on:click={sendMessage}>Search</button>
   </div>
+  <div class="result-container">
+	<ul>
+		{#each messages as message}
+			<li>{@html message}</li>
+		{/each}
+	</ul>
+  </div>
+  <!--
   {#if result}
 	<div class="result-container">
 		<p>{@html result}</p>
@@ -149,4 +190,5 @@
 		<p>{result}</p>
 	</div>
   {/if}
+-->
   

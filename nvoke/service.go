@@ -129,3 +129,44 @@ func (rs *RetrievalService) CreateChatCompletion(ctx context.Context, query Quer
 	}
 	return response.Choices[0].Message.Content, nil
 }
+
+func (rs *RetrievalService) CreateChatCompletionStream(ctx context.Context, query Query) (StreamingResponse[ChatCompletionStreamResponse], error) {
+	knowledgeBase, ok := rs.KnowledgeBases[query.Persona]
+	if !ok {
+		log.Printf("invalid persona %v\n", query.Persona)
+		return nil, ErrInvalidQueryParameters
+	}
+
+	documents, err := rs.SemanticSearch(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	persona := knowledgeBase.Persona()
+	contextString, err := persona.BuildCompletionContext(ctx, documents)
+	if err != nil {
+		log.Printf("Failed to build context: %v\n", err)
+		return nil, ErrChatCompletionContextBuildFailed
+	}
+
+	req := openai.ChatCompletionRequest{
+		Model: openai.GPT4o,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: persona.Prompt(),
+			},
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: fmt.Sprintf("%s \n question: %s", contextString, query.Query),
+			},
+		},
+		Stream: true,
+	}
+
+	stream, err := rs.OpenAI.CreateChatCompletionStream(ctx, req)
+	if err != nil {
+		log.Printf("Error generating completion: %v", err)
+		return nil, ErrChatCompletionFailed
+	}
+	return &ChatCompletionStreamAdapter{stream: stream}, err
+}

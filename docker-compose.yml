@@ -34,6 +34,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     command: ["serve"]
+    env_file:
+        - .env
     labels:
       - "traefik.http.routers.api.rule=Host(`api.local`)"
       - "traefik.http.middlewares.api-cors.headers.accessControlAllowMethods=GET, POST, OPTIONS"

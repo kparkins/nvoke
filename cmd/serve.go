@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gorilla/websocket"
 	"github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,9 +27,6 @@ var serveCmd = &cobra.Command{
 }
 
 // TODO
-// generate.go
-// completion.go
-// similar.go
 // upload.go
 
 var port int
@@ -92,8 +90,51 @@ func serve() {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"answer": completion,
 		})
-	},
-	)
+	})
+
+	r.Post("/v1/completion/stream", func(w http.ResponseWriter, r *http.Request) {
+		upgrader := websocket.Upgrader{}
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Println("Failed to upgrade to WebSocket:", err)
+			return
+		}
+		defer conn.Close()
+
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Failed to read message from WebSocket:", err)
+			return
+		}
+
+		var query nvoke.Query
+		err = json.Unmarshal(message, &query)
+		if err != nil {
+			log.Println("Failed to unmarshal JSON message:", err)
+		}
+
+		stream, err := service.CreateChatCompletionStream(ctx, query)
+		if err != nil {
+			log.Println("Failed to create chat completion stream:", err)
+			return
+		}
+		defer stream.Close()
+
+		for {
+			response, err := stream.Recv()
+			if err != nil {
+				log.Println("Failed to receive message from OpenAI:", err)
+				return
+			}
+
+			err = conn.WriteMessage(websocket.TextMessage, []byte(response.Choices[0].Delta.Content))
+			if err != nil {
+				log.Println("Failed to write message to WebSocket:", err)
+				return
+			}
+		}
+
+	})
 
 	log.Printf("Listening on %s:%d", address, port)
 	http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), r)
