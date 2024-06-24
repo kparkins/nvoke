@@ -1,8 +1,13 @@
 <script>
 	import { onMount } from "svelte";
 
-	let query = "";
 	let result = "";  
+	let persona = 'Jesus';
+	  // background-image: url('heavenly-background.jpg');
+  let messages = [];
+  let inputMessage = '';
+
+  let socket;
 	onMount(() => {
 		connect();
 	});
@@ -15,7 +20,7 @@
 		const response = await fetch('http://api.local/v1/completion', {
 		  method: 'POST',
 		  headers: { 'Content-Type': 'application/json' },
-		  body: JSON.stringify({ 'query': query })
+		  body: JSON.stringify({ 'query': inputMessage, 'persona': persona })
 		});
   
 		const data = await response.json();
@@ -24,11 +29,7 @@
 	  }
 	}
 
-	  // background-image: url('heavenly-background.jpg');
-  let messages = [];
-  let inputMessage = '';
 
-  let socket;
 
   function connect() {
     socket = new WebSocket('ws://api.local/v1/completion/stream');
@@ -50,7 +51,7 @@
     if (socket && inputMessage.trim() !== '') {
       const message = { 
 		query: inputMessage,
-		persona: "bible"
+		persona: persona 
 	};
 
       socket.send(JSON.stringify(message));
@@ -170,7 +171,11 @@
   </style>
   
   <div class="search-container">
-	<input type="text" bind:value={query} placeholder="Ask me anything for I am your God...">
+	<select bind:value={persona}>
+		<option value="Jesus">Jesus</option>
+		<option value="Lao Tzu">Lao Tzu</option>
+	  </select>
+	<input type="text" bind:value={inputMessage} placeholder="Ask me anything...">
 	<button on:click={sendMessage}>Search</button>
   </div>
   <div class="result-container">
