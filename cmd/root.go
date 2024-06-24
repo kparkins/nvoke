@@ -19,7 +19,7 @@ var persona string
 
 var rootCmd = &cobra.Command{
 	Use:   "nvoke",
-	Short: "nvoke is a tool to manage embeddings and storage for a variety of religious and spiritual texts.",
+	Short: "nvoke is a tool to manage embeddings and storage for a variety of texts.",
 }
 
 // Execute executes the root command.

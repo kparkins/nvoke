@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func SearchSimilarVerses(query string) {
+func SearchSimilarEmbeddings(query string) {
 	ctx := context.Background()
 
 	if query == "" {
@@ -43,9 +43,9 @@ func SearchSimilarVerses(query string) {
 
 var similarCmd = &cobra.Command{
 	Use:   "similar",
-	Short: "similarity search for bible verses",
+	Short: "similarity search for text",
 	Run: func(cmd *cobra.Command, args []string) {
-		SearchSimilarVerses(query)
+		SearchSimilarEmbeddings(query)
 	},
 }
 
